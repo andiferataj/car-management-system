@@ -3,6 +3,7 @@ from app import db
 from app import schemas
 from app.auth import get_api_key
 import uuid
+from app.services import scraper
 
 router = APIRouter(prefix="/api", tags=["cars"])
 
@@ -105,6 +106,19 @@ def get_car(car_id: str):
     if not row:
         raise HTTPException(status_code=404, detail="Car not found")
     return {"id": row[0], "model_id": row[1], "vin": row[2], "color": row[3], "price": row[4], "status": row[5]}
+
+
+@router.post("/scrape", dependencies=[Depends(get_api_key)])
+def scrape_html(payload: dict):
+    """Accepts JSON with `html` key and returns parsed listings using BeautifulSoup helper."""
+    html = payload.get("html")
+    if not html:
+        raise HTTPException(status_code=400, detail="Missing 'html' in payload")
+    try:
+        results = scraper.parse_car_listings(html)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"count": len(results), "results": results}
 
 
 # Update and delete endpoints

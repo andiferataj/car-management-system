@@ -62,6 +62,63 @@ with col1:
         except Exception as e:
             st.error(str(e))
 
+    st.markdown("---")
+    st.subheader("Create / Seed")
+    with st.expander("Create Brand"):
+        bname = st.text_input("Brand name", key="brand_name")
+        if st.button("Create Brand", key="create_brand"):
+            try:
+                r = requests.post(f"{API_URL}/brands", headers=headers, json={"name": bname}, timeout=5)
+                r.raise_for_status()
+                st.success("Created brand")
+                st.experimental_rerun()
+            except Exception as e:
+                st.error(str(e))
+
+    with st.expander("Create Model"):
+        m_brand = st.text_input("Brand ID", key="m_brand")
+        m_name = st.text_input("Model name", key="m_name")
+        m_year = st.number_input("Year", min_value=1900, max_value=2100, value=2023, key="m_year")
+        if st.button("Create Model", key="create_model"):
+            try:
+                payload = {"brand_id": m_brand, "name": m_name, "year": int(m_year)}
+                r = requests.post(f"{API_URL}/models", headers=headers, json=payload, timeout=5)
+                r.raise_for_status()
+                st.success("Created model")
+                st.experimental_rerun()
+            except Exception as e:
+                st.error(str(e))
+
+    with st.expander("Create Car"):
+        c_model = st.text_input("Model ID", key="c_model")
+        c_vin = st.text_input("VIN", key="c_vin")
+        c_color = st.text_input("Color", key="c_color")
+        c_price = st.number_input("Price", min_value=0.0, format="%.2f", key="c_price")
+        if st.button("Create Car", key="create_car"):
+            try:
+                payload = {"model_id": c_model, "vin": c_vin, "color": c_color, "price": float(c_price), "status": "available"}
+                r = requests.post(f"{API_URL}/cars", headers=headers, json=payload, timeout=5)
+                r.raise_for_status()
+                st.success("Created car")
+                st.experimental_rerun()
+            except Exception as e:
+                st.error(str(e))
+
+    st.markdown("---")
+    st.subheader("Scraper")
+    html = st.text_area("Paste listing HTML here (or fetch externally)")
+    if st.button("Parse HTML"):
+        if not API_KEY:
+            st.error("API key required in sidebar")
+        else:
+            try:
+                r = requests.post(f"{API_URL}/scrape", headers=headers, json={"html": html}, timeout=10)
+                r.raise_for_status()
+                res = r.json()
+                st.write(res)
+            except Exception as e:
+                st.error(str(e))
+
 with col2:
     st.subheader("Analytics")
     try:

@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from dotenv import load_dotenv
 import os
+import logging
 
 load_dotenv()
 
 from app.db import init_db
 from app.routers.cars import router as cars_router
+from app.logging_config import configure_logging
+
+configure_logging()
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Car Management System")
 
@@ -13,6 +18,7 @@ app = FastAPI(title="Car Management System")
 @app.on_event("startup")
 def startup_event():
     # initialize DB (creates file and tables if needed)
+    logger.info("Initializing database")
     init_db()
 
 app.include_router(cars_router)

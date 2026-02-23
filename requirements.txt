@@ -7,3 +7,5 @@ pandas
 plotly
 beautifulsoup4
 streamlit
+pytest
+httpx
