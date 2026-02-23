@@ -105,3 +105,94 @@ def get_car(car_id: str):
     if not row:
         raise HTTPException(status_code=404, detail="Car not found")
     return {"id": row[0], "model_id": row[1], "vin": row[2], "color": row[3], "price": row[4], "status": row[5]}
+
+
+# Update and delete endpoints
+@router.put("/cars/{car_id}", response_model=schemas.Car, dependencies=[Depends(get_api_key)])
+def update_car(car_id: str, payload: schemas.CarBase):
+    conn = db.get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE cars SET model_id=?, vin=?, color=?, price=?, status=? WHERE id=?",
+        (payload.model_id, payload.vin, payload.color, payload.price, payload.status, car_id),
+    )
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Car not found")
+    conn.commit()
+    cur.execute("SELECT id, model_id, vin, color, price, status FROM cars WHERE id=?", (car_id,))
+    row = cur.fetchone()
+    conn.close()
+    return {"id": row[0], "model_id": row[1], "vin": row[2], "color": row[3], "price": row[4], "status": row[5]}
+
+
+@router.delete("/cars/{car_id}", dependencies=[Depends(get_api_key)])
+def delete_car(car_id: str):
+    conn = db.get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM cars WHERE id=?", (car_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Car not found")
+    conn.commit()
+    conn.close()
+    return {"detail": "deleted"}
+
+
+# Brands update/delete
+@router.put("/brands/{brand_id}", response_model=schemas.Brand, dependencies=[Depends(get_api_key)])
+def update_brand(brand_id: str, payload: schemas.BrandBase):
+    conn = db.get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE brands SET name=? WHERE id=?", (payload.name, brand_id))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Brand not found")
+    conn.commit()
+    cur.execute("SELECT id, name FROM brands WHERE id=?", (brand_id,))
+    row = cur.fetchone()
+    conn.close()
+    return {"id": row[0], "name": row[1]}
+
+
+@router.delete("/brands/{brand_id}", dependencies=[Depends(get_api_key)])
+def delete_brand(brand_id: str):
+    conn = db.get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM brands WHERE id=?", (brand_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Brand not found")
+    conn.commit()
+    conn.close()
+    return {"detail": "deleted"}
+
+
+# Models update/delete
+@router.put("/models/{model_id}", response_model=schemas.CarModel, dependencies=[Depends(get_api_key)])
+def update_model(model_id: str, payload: schemas.CarModelBase):
+    conn = db.get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE car_models SET brand_id=?, name=?, year=? WHERE id=?",
+                (payload.brand_id, payload.name, payload.year, model_id))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Model not found")
+    conn.commit()
+    cur.execute("SELECT id, brand_id, name, year FROM car_models WHERE id=?", (model_id,))
+    row = cur.fetchone()
+    conn.close()
+    return {"id": row[0], "brand_id": row[1], "name": row[2], "year": row[3]}
+
+
+@router.delete("/models/{model_id}", dependencies=[Depends(get_api_key)])
+def delete_model(model_id: str):
+    conn = db.get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM car_models WHERE id=?", (model_id,))
+    if cur.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Model not found")
+    conn.commit()
+    conn.close()
+    return {"detail": "deleted"}
