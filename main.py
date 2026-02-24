@@ -14,6 +14,30 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Car Management System")
 
+# Allow local frontends (Streamlit) to access the API
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/health", tags=["health"])
+def health():
+    return {"status": "ok"}
+
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled error: %s", exc)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
 
 @app.on_event("startup")
 def startup_event():
