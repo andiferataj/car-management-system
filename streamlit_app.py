@@ -20,9 +20,29 @@ with st.sidebar:
 st.markdown(
     """
     <style>
-    .stApp { background: linear-gradient(180deg, #001f3f 0%, #0b2545 100%); color: #c0c0c0; }
-    .card { background: rgba(255,255,255,0.03); padding: 12px; border-radius:8px; border:1px solid rgba(192,192,192,0.08); }
-    .stButton>button { background-color:#0b2545; color:#c0c0c0; }
+    /* lighter overall background */
+    .stApp { background: linear-gradient(180deg, #f5f8fb 0%, #e9f2fb 100%); color: #111827; }
+
+    /* cards and panels with subtle white backing */
+    .card { background: rgba(255,255,255,0.9); padding: 12px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); }
+
+    /* buttons */
+    .stButton>button { background-color:#0b5fb8; color:#ffffff; }
+
+    /* headings and subtitles: make them more visible on light background */
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5 {
+        color: #0b3b66 !important;
+    }
+
+    /* form labels and small subtitles (brand id, model name, etc.) */
+    label, .css-1aumxhk, .stMarkdown p, .stTextInput>div>label {
+        color: #274a6b !important;
+    }
+
+    /* make table header text slightly darker for readability */
+    .stDataFrame thead th {
+        color: #0b3b66 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
