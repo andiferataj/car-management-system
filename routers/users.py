@@ -26,8 +26,6 @@ def user_to_dict(u: User) -> dict:
         "total_cars": len(u.cars)
     }
 
-
-# CREATE
 @router.post("/", status_code=201)
 def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == payload.email).first():
@@ -39,14 +37,12 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     return {"message": "User created successfully", "id": user.id}
 
 
-# READ ALL
 @router.get("/")
 def get_all_users(db: Session = Depends(get_db)):
     users = db.query(User).order_by(User.name).all()
     return {"total": len(users), "users": [user_to_dict(u) for u in users]}
 
 
-# READ ONE
 @router.get("/{user_id}")
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
@@ -55,7 +51,6 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     return user_to_dict(user)
 
 
-# UPDATE
 @router.put("/{user_id}")
 def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
@@ -67,7 +62,6 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
     return {"message": "User updated successfully"}
 
 
-# DELETE
 @router.delete("/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
