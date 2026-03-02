@@ -26,6 +26,7 @@ def user_to_dict(u: User) -> dict:
         "total_cars": len(u.cars)
     }
 
+
 @router.post("/", status_code=201)
 def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == payload.email).first():
